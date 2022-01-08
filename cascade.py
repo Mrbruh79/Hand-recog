@@ -11,6 +11,19 @@ import glob
 import scipy.io
 from mat4py import loadmat
 
+a =  loadmat(r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\annotations\Buffy_10.mat")
+print(a)
+print("\n")
+b = list(a.values())
+print("\n")
+print(b)
+print("\n")
+print((b[0][1]))
+print("\n")
+c = list(b[0][1].values())
+print("\n")
+print(c[1])
+
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -23,6 +36,19 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import RMSprop,Adam
 import tensorflow_io as tfio
 import tensorflow_datasets as tfds
+
+
+
+#Test space
+
+
+
+
+
+
+
+
+
 
 #Importing data
 
@@ -49,8 +75,24 @@ test_dir_val = r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\test_da
 test_dir_val = glob.glob(os.path.join(test_dir_val, "*.mat"))
 
 
+
+
+
+
+
 #Importing images and labels
 
+
+
+#mat  data process function
+def getvalues(data):
+    b = list(data.values())
+    i = len(b[0])
+    hands = i
+    coor = []
+    for x in range(0,i):
+        c = list(b[0][x].values())
+        
 
 #inporting location data
 train_data = []
@@ -59,12 +101,13 @@ validation_data = []
 
 for filename in train_dir_val:
     data = loadmat(filename)
+    train_data.append(data)
     
 for filename in validation_dir_val:
     data = loadmat(filename)
 
 for filename in test_dir_val:
-    data.append(loadmat(filename))    
+    data = loadmat(filename)
 
 train_ds = tf.data.Dataset.from_tensor_slices((train_dir,train_data))
 
@@ -75,6 +118,8 @@ for filename in train_dir:
 
 
 
+# for i in train_data:
+#     print(i , "\n")
 
     
     
@@ -84,5 +129,3 @@ for filename in train_dir:
     
 
 
-
-print(type(data))
