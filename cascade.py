@@ -11,7 +11,7 @@ import glob
 import scipy.io
 from mat4py import loadmat
 
-
+import pandas as pd
 
 import tensorflow as tf
 import tensorflow_hub as hub
@@ -96,24 +96,36 @@ def getvalues(data):
     b = list(data.values())
     i = len(b[0])
     coor = []
-    
+    htype = []
     if type(b[0]) == list:
-        for x in range(0,i-1):
+        for x in range(0,i):
             y = list(b[0][x].values())
             coor.append(y[0:4])
             # print(y , "\n")
             if(len(y)>4):
-                coor.append(y[4])   
+                #Encoding Hand type
+                if(y[4] == 'L'):
+                    y[4] = 1
+                elif(y[4] == 'R'):
+                    y[4] = 2
+                htype.append(y[4])   
             else:
-                coor.append(0)
+                htype.append(0)
+        nhands = i    
     else:
         y = list(b[0].values())
         coor.append(y[0:4])      
         if(len(y)>4):
-            coor.append(y[4])   
+            #Encoding Hand type
+            if(y[4] == 'L'):
+                y[4] = 1
+            elif(y[4] == 'R'):
+                y[4] = 2
+            htype.append(y[4])   
         else:
-            coor.append(0)
-    return coor 
+            htype.append(0)
+        nhands = 1    
+    return nhands , coor, htype
 
 
 
@@ -122,18 +134,27 @@ train_data = []
 test_data = []
 validation_data = []
 
+
+noofhands = []
+hand_coordinates = []
+hand_type = []
+
+
+
 for filename in train_dir_val:
     data = loadmat(filename)
     print(filename)
-    data = getvalues(data)
-    train_data.append(data)
+    nhands , coor , htype = getvalues(data)
+    noofhands.append(nhands)
+    hand_coordinates.append(coor)
+    hand_type.append(htype)
    
     
-for filename in validation_dir_val:
-    data = loadmat(filename)
+# for filename in validation_dir_val:
+#     data = loadmat(filename)
 
-for filename in test_dir_val:
-    data = loadmat(filename)
+# for filename in test_dir_val:
+#     data = loadmat(filename)
 
 # train_ds = tf.data.Dataset.from_tensor_slices((train_dir,train_data))
 
@@ -142,7 +163,18 @@ for filename in test_dir_val:
 #     img = cv.imread(filename)
 
 
-print(train_data)
+for i in range(0,len(hand_type)):
+    print(noofhands[i],
+    hand_coordinates[i],
+    hand_type[i] , " \n")
+
+
+
+list3 = zip(noofhands,hand_coordinates,hand_type)
+df = pd.DataFrame(list3, columns=('list1', 'list2'))
+print (df)
+
+
 print("\n")
 
 
