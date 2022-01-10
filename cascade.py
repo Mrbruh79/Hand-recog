@@ -24,22 +24,22 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import RMSprop,Adam
 import tensorflow_io as tfio
 
-
+########################################################################################################################################
 
 #Test space
 
-# a =  loadmat(r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\annotations\Buffy_10.mat")
+# a =  loadmat(r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\annotations\Buffy_1.mat")
 # print(a)
 # print("\n")
 # b = list(a.values())
 # print("\n")
-# print(type(b[0]))
+# print(b[0])
 # print("\n")
-# # print((b[0][1]))
+# print((b[0][1]))
 # print("\n")
 # c = list(b[0].values())
 # print("\n")
-# # print(c)
+# print(c)
 
 
 # a =  loadmat(r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\annotations\VOC2010_998.mat")
@@ -53,8 +53,10 @@ import tensorflow_io as tfio
 # print("\n")
 # c = list(b[0][1].values())
 # print("\n")
-# print()
 
+
+
+########################################################################################################################################
 
 #Importing data
 
@@ -65,6 +67,9 @@ train_dir = glob.glob(os.path.join(train_dir, "*.jpg"))
 
 train_dir_val = r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\annotations"
 train_dir_val = glob.glob(os.path.join(train_dir_val, "*.mat"))
+
+train_dir_negative = r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\images_negative"
+train_dir_negative = glob.glob(os.path.join(train_dir, "*.jpg"))
 
 
 validation_dir = r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\validation_dataset\validation_data\images"
@@ -90,7 +95,39 @@ test_dir_val = glob.glob(os.path.join(test_dir_val, "*.mat"))
 
 
 
-#mat  data process function
+
+
+#Image Data importing and processing
+
+
+def getimage(dir):
+    image  = []
+    x = 0
+    for filename in dir:
+        img = cv.imread(filename)
+        image.append(img)
+        x = x+1
+    return image , x
+        
+list3, x = getimage(train_dir)
+list2 , neg_samples = getimage(train_dir_negative)
+for i in list2:
+    list3.append(i)
+train_data = pd.DataFrame(list3 , columns =['Image'] )
+
+
+list3 , x = getimage(validation_dir)
+validation_data = pd.DataFrame(list3 , columns =['Image'] )
+
+
+list3 , x = getimage(test_dir)
+test_data = pd.DataFrame(list3 , columns =['Image'] )
+
+
+
+# #mat  data process function
+
+
 def getvalues(data):
     b = 0
     b = list(data.values())
@@ -133,7 +170,9 @@ def getvalues(data):
 
 
 
-#mat import function
+# #mat import function
+
+
 def importval(dir):
     noofhands = []
     hand_coordinates = []
@@ -147,46 +186,42 @@ def importval(dir):
         hand_type.append(htype)
     return noofhands , hand_coordinates , hand_type
 
-#inporting location data
-noofhands_glob,hand_coordinates_glob,hand_type_glob =   importval(train_dir_val)
+# #inporting location data
+
+
+noofhands_glob , hand_coordinates_glob , hand_type_glob =   importval(train_dir_val)
+for i in range(0,neg_samples):
+    noofhands_glob.append(0) 
+    hand_coordinates_glob.append([[[]]])
+    hand_type_glob.append([])
+    
 list3 = zip(noofhands_glob,hand_coordinates_glob,hand_type_glob)
-train_data = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type'))   
+
+train_data_output = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
 
 
 noofhands_glob,hand_coordinates_glob,hand_type_glob =   importval(validation_dir_val)
 list3 = zip(noofhands_glob,hand_coordinates_glob,hand_type_glob)
-validation_data = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
+validation_data_output = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
 
 
 noofhands_glob,hand_coordinates_glob,hand_type_glob =   importval(test_dir_val)
 list3 = zip(noofhands_glob,hand_coordinates_glob,hand_type_glob)
-test_data = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
+test_data_output = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
     
-# for filename in validation_dir_val:
-#     data = loadmat(filename)
 
-# for filename in test_dir_val:
-#     data = loadmat(filename)
-
-# train_ds = tf.data.Dataset.from_tensor_slices((train_dir,train_data))
+#shuffling training data
 
 
-# for filename in train_dir:    
-#     img = cv.imread(filename)
+train_data_combined = pd.concat([train_data,train_data_output])#combining train data
+train_data_combined = train_data_combined.sample(frac=1).reset_index(drop=True) #shuffling train data
+train_data = train_data_combined.iloc[:,0]#breaking train data
+train_data_output = train_data_combined.iloc[:,1:]#breaking train data
 
 
-
-
-
-
-print("\n")
-
-
-# for i in train_data:
-#     print(i , "\n")
-
-    
-    
+# numeric_feature_names = ['age', 'thalach', 'trestbps',  'chol', 'oldpeak']
+# numeric_features = df[numeric_feature_names]
+# numeric_features.head()    
     
     
 # data = loadmat(r"C:\Users\Restandsleep\Desktop\VIT\Personal\hand_dataset\training_dataset\training_data\annotations\Buffy_2.mat")
