@@ -140,7 +140,7 @@ def importval(dir):
     hand_type = []
     for filename in dir:
         data = loadmat(filename)
-        print(filename)
+        
         nhands , coor , htype = getvalues(data)
         noofhands.append(nhands)
         hand_coordinates.append(coor)
