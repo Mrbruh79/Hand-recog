@@ -108,6 +108,8 @@ def getvalues(data):
                     y[4] = 1
                 elif(y[4] == 'R'):
                     y[4] = 2
+                else:
+                    y[4]=0
                 htype.append(y[4])   
             else:
                 htype.append(0)
@@ -121,6 +123,8 @@ def getvalues(data):
                 y[4] = 1
             elif(y[4] == 'R'):
                 y[4] = 2
+            else:
+                y[4]=0    
             htype.append(y[4])   
         else:
             htype.append(0)
@@ -129,26 +133,34 @@ def getvalues(data):
 
 
 
+#mat import function
+def importval(dir):
+    noofhands = []
+    hand_coordinates = []
+    hand_type = []
+    for filename in dir:
+        data = loadmat(filename)
+        print(filename)
+        nhands , coor , htype = getvalues(data)
+        noofhands.append(nhands)
+        hand_coordinates.append(coor)
+        hand_type.append(htype)
+    return noofhands , hand_coordinates , hand_type
+
 #inporting location data
-train_data = []
-test_data = []
-validation_data = []
+noofhands_glob,hand_coordinates_glob,hand_type_glob =   importval(train_dir_val)
+list3 = zip(noofhands_glob,hand_coordinates_glob,hand_type_glob)
+train_data = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type'))   
 
 
-noofhands = []
-hand_coordinates = []
-hand_type = []
+noofhands_glob,hand_coordinates_glob,hand_type_glob =   importval(validation_dir_val)
+list3 = zip(noofhands_glob,hand_coordinates_glob,hand_type_glob)
+validation_data = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
 
 
-
-for filename in train_dir_val:
-    data = loadmat(filename)
-    print(filename)
-    nhands , coor , htype = getvalues(data)
-    noofhands.append(nhands)
-    hand_coordinates.append(coor)
-    hand_type.append(htype)
-   
+noofhands_glob,hand_coordinates_glob,hand_type_glob =   importval(test_dir_val)
+list3 = zip(noofhands_glob,hand_coordinates_glob,hand_type_glob)
+test_data = pd.DataFrame(list3, columns=('no of hands' , 'hand coordinates' , 'hand type')) 
     
 # for filename in validation_dir_val:
 #     data = loadmat(filename)
@@ -163,16 +175,8 @@ for filename in train_dir_val:
 #     img = cv.imread(filename)
 
 
-for i in range(0,len(hand_type)):
-    print(noofhands[i],
-    hand_coordinates[i],
-    hand_type[i] , " \n")
 
 
-
-list3 = zip(noofhands,hand_coordinates,hand_type)
-df = pd.DataFrame(list3, columns=('list1', 'list2'))
-print (df)
 
 
 print("\n")
